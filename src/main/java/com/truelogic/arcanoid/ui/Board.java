@@ -25,7 +25,7 @@ public class Board extends JPanel implements ActionListener {
 
 	public static final int M_WIDTH = 50;
 
-	public static final int M_HEIGHT = 60;
+	public static final int M_HEIGHT = 50;
 
 	private static final int B_WIDTH = M_WIDTH * Pixel.SIZE;
 
@@ -35,15 +35,19 @@ public class Board extends JPanel implements ActionListener {
 
 	private static final int MARGIN_TOP = 0;
 
+	private static Board instance;
+
 	private Timer timer;
-	
+
 	private Bar bar;
 
-	private Ball ball;
+	private List<Ball> balls;
 
 	private List<Block> blocks;
 
+	private List<DroppingPixel> specialAttrs;
 	
+	private BulletPixel bullet;
 
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -51,6 +55,26 @@ public class Board extends JPanel implements ActionListener {
 		paintBar(g);
 		paintBlocks(g);
 		paintBall(g);
+		paintSpecialAttrs(g);
+		if (bullet != null)
+			paintBullets(g);
+	}
+
+	private void paintBullets(Graphics g) {
+		int x = MARGIN_LEFT + bullet.getX() * Pixel.SIZE;
+		int y = MARGIN_TOP + bullet.getY() * Pixel.SIZE;
+		g.drawImage(bullet.getImage(), x, y, this);
+		g.drawImage(bullet.getImage(), x + (bar.getBody().size() -1) * Pixel.SIZE, y, this);
+		
+	}
+
+	private void paintSpecialAttrs(Graphics g) {
+		for (DroppingPixel sa : specialAttrs) {
+			int x = MARGIN_LEFT + sa.getX() * Pixel.SIZE;
+			int y = MARGIN_TOP + sa.getY() * Pixel.SIZE;
+			g.drawImage(sa.getImage(), x, y, this);
+		}
+
 	}
 
 	private void paintBlocks(Graphics g) {
@@ -61,17 +85,17 @@ public class Board extends JPanel implements ActionListener {
 				g.drawImage(bp.getImage(), x, y, this);
 			}
 		}
-		
+
 	}
 
 	private void paintBall(Graphics g) {
-		int x = MARGIN_LEFT + ball.getX() * Pixel.SIZE;
-		int y = MARGIN_TOP + ball.getY() * Pixel.SIZE;
-		g.drawImage(ball.getImage(), x, y, this);
+		for (Ball ball : balls) {
+			int x = MARGIN_LEFT + ball.getX() * Pixel.SIZE;
+			int y = MARGIN_TOP + ball.getY() * Pixel.SIZE;
+			g.drawImage(ball.getImage(), x, y, this);
+		}
 	}
-	
 
-	
 	private void paintBar(Graphics g) {
 		for (Pixel bp : bar.getBody()) {
 			int x = MARGIN_LEFT + bp.getX() * Pixel.SIZE;
@@ -79,28 +103,51 @@ public class Board extends JPanel implements ActionListener {
 			g.drawImage(bp.getImage(), x, y, this);
 		}
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		bar.move();
-		ball.move(crash(ball, bar), blocks);
-		if (ball.died()) {
-			this.ball = new Ball(M_WIDTH / 2, M_HEIGHT - 4);
+		List<Ball> diedBalls = new ArrayList<Ball>();
+		bar.move(balls);
+		for (Ball ball : balls) {
+			ball.move(crash(ball, bar), blocks, specialAttrs);
+			if (ball.died()) {
+				diedBalls.add(ball);
+			}
+		}
+		for (Ball ball : diedBalls) {
+			balls.remove(ball);
+			if (balls.isEmpty())
+				balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
+		}
+		List<DroppingPixel> dpToRemove = new ArrayList<DroppingPixel>();
+		for (DroppingPixel dp : specialAttrs) {
+			dp.move();
+			if (dp.crash(bar) || dp.outOfScreen()) {
+				dpToRemove.add(dp);
+			}
+		}
+		for (DroppingPixel dp : dpToRemove)
+			specialAttrs.remove(dp);
+		
+		if (bullet != null) {
+			bullet.move();
 		}
 		repaint();
 	}
 
 	private Integer crash(Ball ball, Bar bar) {
 		if (bar.crash(ball)) {
-			 return bar.getVelocity();
-		} 
+			return bar.getVelocity();
+		}
 		return null;
 	}
 
 	public Board() {
 		super();
 		this.bar = new Bar();
-		this.ball = new Ball(M_WIDTH / 2, M_HEIGHT - 4);
+		this.balls = new ArrayList<Ball>();
+		this.balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
+		this.specialAttrs = new ArrayList<DroppingPixel>();
 		setUpBlocks();
 		setBackground(Color.BLACK);
 		timer = new Timer(DELAY, this);
@@ -109,17 +156,17 @@ public class Board extends JPanel implements ActionListener {
 		setFocusable(true);
 		addKeyListener(new KeyPressListener(this));
 	}
-	
+
 	private void setUpBlocks() {
 		this.blocks = new ArrayList<Block>();
-		for (int i = 5; i < 20; i ++) {
+		for (int i = 5; i < 20; i++) {
 			for (int j = 0; j <= M_WIDTH - 3; j += 4) {
 				if (Math.random() < 0.5) {
 					blocks.add(new Block(j, i));
 				}
 			}
 		}
-		
+
 	}
 
 	private class KeyPressListener extends KeyAdapter {
@@ -129,7 +176,7 @@ public class Board extends JPanel implements ActionListener {
 		public KeyPressListener(Board board) {
 			this.board = board;
 		}
-		
+
 		@Override
 		public void keyReleased(KeyEvent e) {
 			super.keyReleased(e);
@@ -139,9 +186,23 @@ public class Board extends JPanel implements ActionListener {
 		@Override
 		public void keyPressed(KeyEvent e) {
 
-			switch(e.getKeyCode()) {
-				case KeyEvent.VK_LEFT: board.getBar().setDirection(Bar.LEFT); break;
-				case KeyEvent.VK_RIGHT: board.getBar().setDirection(Bar.RIGHT); break;
+			switch (e.getKeyCode()) {
+			case KeyEvent.VK_LEFT:
+				board.getBar().setDirection(Bar.LEFT);
+				break;
+			case KeyEvent.VK_RIGHT:
+				board.getBar().setDirection(Bar.RIGHT);
+				break;
+			case KeyEvent.VK_SPACE:
+				for (Ball ball : board.getBalls()) {
+					if (ball.standStill()) {
+						ball.activate();
+						break;
+					}
+				}
+				if (board.getBar().isWeapon()) {
+					board.shoot();
+				}
 			}
 		}
 
@@ -151,16 +212,46 @@ public class Board extends JPanel implements ActionListener {
 		return bar;
 	}
 
-
-
+	public void shoot() {
+		if (bullet == null) {
+			this.bullet = new BulletPixel();
+			bullet.setX(bar.getBody().get(0).getX());
+			bullet.setY(bar.getBody().get(0).getY());
+		}
+		
+	}
 
 	public void setBar(Bar bar) {
 		this.bar = bar;
 	}
-	
-	
 
-	
-	
+	public List<Ball> getBalls() {
+		return balls;
+	}
+
+	public void setBalls(List<Ball> balls) {
+		this.balls = balls;
+	}
+
+	public static void applyMultiBall() {
+		Board board = getInstance();
+		Ball firstBall = null;
+		for (Ball ball : board.getBalls()) {
+			if (ball != null) {
+				firstBall = ball;
+			}
+		}
+		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), 1));
+		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), -1));
+		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), 0));
+		
+	}
+
+	public static Board getInstance() {
+		if (instance == null) {
+			instance = new Board();
+		}
+		return instance;
+	}
 
 }

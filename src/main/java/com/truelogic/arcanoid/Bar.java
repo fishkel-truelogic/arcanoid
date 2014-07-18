@@ -15,6 +15,7 @@ public class Bar {
 	private static final int BODY_LENGTH = 6;
 	private List<BarPixel> body;
 	private int direction;
+	private boolean weapon;
 	
 	public Bar() {
 		int y = Board.M_HEIGHT - 2;
@@ -26,7 +27,7 @@ public class Bar {
 		}
 	}
 	
-	public void move() {
+	public void move(List<Ball> balls) {
 		switch (this.direction) {
 		case LEFT:
 			if (!(this.body.get(0).getX() - 1 == 0)) {
@@ -57,6 +58,11 @@ public class Bar {
 			break;
 		default:
 			break;
+		}
+		for (Ball ball : balls) {
+			if (ball.standStill()) {
+				ball.setX(body.get(3).getX());
+			}
 		}
 
 	}
@@ -98,9 +104,21 @@ public class Bar {
 		}
 		return null;
 	}
+
+	public void applyLargerBar() {
+		body.add(new BarPixel(body.get(body.size() -1).getX() + 1, body.get(0).getY()));
+		
+	}
+
+	public boolean isWeapon() {
+		return weapon;
+	}
+
+	public void setWeapon(boolean weapon) {
+		this.weapon = weapon;
+	}
 	
 	
-	
-	
+
 	
 }

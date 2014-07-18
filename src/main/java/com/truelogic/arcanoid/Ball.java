@@ -3,19 +3,27 @@ package com.truelogic.arcanoid;
 import java.util.List;
 
 import com.truelogic.arcanoid.ui.Board;
+import com.truelogic.arcanoid.ui.DroppingPixel;
 import com.truelogic.arcanoid.ui.Pixel;
 
 public class Ball extends Pixel {
 	
-	private int vy = -1;
-	private int vx = 1;
+	private int vy = 0;
+	private int vx = 0;
 	
 	public Ball(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
 	
-	public void move(Integer vbar, List<Block> blocks) {
+	public Ball(int x, int y, int vx) {
+		this.x = x;
+		this.y = y;
+		this.vx = vx;
+		this.vy = -1;
+	}
+
+	public void move(Integer vbar, List<Block> blocks, List<DroppingPixel> specialAttrs) {
 		if (vbar != null) {
 			vy = -vy;
 			vx += vbar;
@@ -26,15 +34,20 @@ public class Ball extends Pixel {
 		if (crashWall()) {
 			vx = -vx;
 		}
-		x += vx;
-		y += vy;
 		
 		for (Block block : blocks) {
 			if (this.crashWith(block)) {
-				blocks.remove(block);
-				return;
+				if (block.constraints()) {
+					blocks.remove(block);
+				}
+				if (block.getSpecialAttribute() != null) {
+					specialAttrs.add(block.getSpecialAttribute());
+				}
+				break;
 			}
 		}
+		x += vx;
+		y += vy;
 	}
 
 
@@ -43,11 +56,11 @@ public class Ball extends Pixel {
 		Ball rightBall = this.getNewRightBall();
 		Ball topBall = this.getNewTopBall();
 		Ball bottomBall = this.getNewBottomBall();
-		if (block.getBody().get(0).inSameSpot(leftBall)) {
+		if (block.getBody().get(0).inSameSpot(rightBall)) {
 			vx = -vx;
 			return true;
 		}
-		if (block.getBody().get(2).inSameSpot(rightBall)) {
+		if (block.getBody().get(3).inSameSpot(leftBall)) {
 			vx = -vx;
 			return true;
 		}
@@ -102,6 +115,16 @@ public class Ball extends Pixel {
 	
 	public Ball getNewBottomBall() {
 		return new Ball(this.x, this.y + 1);
+	}
+
+	public boolean standStill() {
+		return vx == 0 && vy == 0;
+	}
+
+	public void activate() {
+		vx = 1;
+		vy = -1;
+		
 	}
 	
 	
