@@ -48,6 +48,8 @@ public class Board extends JPanel implements ActionListener {
 	private List<DroppingPixel> specialAttrs;
 	
 	private BulletPixel bullet;
+	
+	private BulletPixel bullet2;
 
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -56,15 +58,21 @@ public class Board extends JPanel implements ActionListener {
 		paintBlocks(g);
 		paintBall(g);
 		paintSpecialAttrs(g);
-		if (bullet != null)
-			paintBullets(g);
+		paintBullets(g);
 	}
 
 	private void paintBullets(Graphics g) {
-		int x = MARGIN_LEFT + bullet.getX() * Pixel.SIZE;
-		int y = MARGIN_TOP + bullet.getY() * Pixel.SIZE;
-		g.drawImage(bullet.getImage(), x, y, this);
-		g.drawImage(bullet.getImage(), x + (bar.getBody().size() -1) * Pixel.SIZE, y, this);
+		if (bullet != null) {
+			int x = MARGIN_LEFT + bullet.getX() * Pixel.SIZE;
+			int y = MARGIN_TOP + bullet.getY() * Pixel.SIZE;
+			g.drawImage(bullet.getImage(), x, y, this);
+			
+		}
+		if (bullet2 != null) {
+			int x = MARGIN_LEFT + bullet2.getX() * Pixel.SIZE;
+			int y = MARGIN_TOP + bullet2.getY() * Pixel.SIZE;
+			g.drawImage(bullet2.getImage(), x, y, this);
+		}
 		
 	}
 
@@ -130,7 +138,15 @@ public class Board extends JPanel implements ActionListener {
 			specialAttrs.remove(dp);
 		
 		if (bullet != null) {
-			bullet.move();
+			if (bullet.move(blocks)) {
+				bullet = null;
+			}
+		}
+		
+		if (bullet2 != null) {
+			if (bullet2.move(blocks)) {
+				bullet2 = null;
+			}
 		}
 		repaint();
 	}
@@ -213,11 +229,15 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	public void shoot() {
-		if (bullet == null) {
+		if (bullet == null && bullet2 == null) {
 			this.bullet = new BulletPixel();
+			this.bullet2 = new BulletPixel();
 			bullet.setX(bar.getBody().get(0).getX());
 			bullet.setY(bar.getBody().get(0).getY());
+			bullet2.setX(bar.getBody().get(bar.getBody().size() - 1).getX());
+			bullet2.setY(bar.getBody().get(bar.getBody().size() - 1).getY());
 		}
+		
 		
 	}
 
