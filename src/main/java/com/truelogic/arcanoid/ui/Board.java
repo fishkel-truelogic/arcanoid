@@ -114,6 +114,12 @@ public class Board extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		if (blocks.isEmpty()) {
+			this.setUpBlocks();
+			balls = new ArrayList<Ball>();
+			balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
+			bar = new Bar();
+		}
 		List<Ball> diedBalls = new ArrayList<Ball>();
 		bar.move(balls);
 		for (Ball ball : balls) {
@@ -138,13 +144,13 @@ public class Board extends JPanel implements ActionListener {
 			specialAttrs.remove(dp);
 		
 		if (bullet != null) {
-			if (bullet.move(blocks)) {
+			if (bullet.move(blocks, specialAttrs)) {
 				bullet = null;
 			}
 		}
 		
 		if (bullet2 != null) {
-			if (bullet2.move(blocks)) {
+			if (bullet2.move(blocks, specialAttrs)) {
 				bullet2 = null;
 			}
 		}
@@ -261,9 +267,9 @@ public class Board extends JPanel implements ActionListener {
 				firstBall = ball;
 			}
 		}
-		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), 1));
-		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), -1));
-		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), 0));
+		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), 1, firstBall.isFireBall()));
+		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), -1, firstBall.isFireBall()));
+		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), 0, firstBall.isFireBall()));
 		
 	}
 
@@ -272,6 +278,16 @@ public class Board extends JPanel implements ActionListener {
 			instance = new Board();
 		}
 		return instance;
+	}
+
+	public static void applyFireball() {
+		Board board = Board.getInstance();
+		for (Ball ball : board.getBalls()) {
+			if (ball != null) {
+				ball.setFireBall(true);
+				ball.setImage(null);
+			}
+		}
 	}
 
 }

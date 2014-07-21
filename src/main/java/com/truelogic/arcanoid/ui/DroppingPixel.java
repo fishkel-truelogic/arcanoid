@@ -1,6 +1,7 @@
 package com.truelogic.arcanoid.ui;
 
 import com.truelogic.arcanoid.Bar;
+import com.truelogic.arcanoid.attributes.FireBall;
 import com.truelogic.arcanoid.attributes.LargerBar;
 import com.truelogic.arcanoid.attributes.MultiBall;
 import com.truelogic.arcanoid.attributes.Weapon;
@@ -35,6 +36,8 @@ public class DroppingPixel extends Pixel {
 			bar.applyLargerBar();
 		} else if (this instanceof Weapon) {
 			bar.setWeapon(true);
+		} else if (this instanceof FireBall) {
+			Board.applyFireball();
 		}
 		
 	}

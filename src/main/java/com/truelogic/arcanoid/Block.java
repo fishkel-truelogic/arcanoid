@@ -3,11 +3,13 @@ package com.truelogic.arcanoid;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.truelogic.arcanoid.attributes.FireBall;
 import com.truelogic.arcanoid.attributes.LargerBar;
 import com.truelogic.arcanoid.attributes.MultiBall;
 import com.truelogic.arcanoid.attributes.Weapon;
 import com.truelogic.arcanoid.ui.DroppingPixel;
 import com.truelogic.arcanoid.ui.GreenBlockPixel;
+import com.truelogic.arcanoid.ui.GreenLeftBlockPixel;
 import com.truelogic.arcanoid.ui.OrangeBlockPixel;
 import com.truelogic.arcanoid.ui.Pixel;
 import com.truelogic.arcanoid.ui.PurpleBlockPixel;
@@ -15,41 +17,61 @@ import com.truelogic.arcanoid.ui.PurpleBlockPixel;
 public class Block {
 
 	private List<Pixel> body;
-	
+
 	private DroppingPixel specialAttribute;
-	
+
 	public Block(int x, int y) {
 		this.body = new ArrayList<Pixel>();
 		for (int i = 0; i < 4; i++) {
-			body.add(randomBlockPixel(x + i, y));
+			body.add(selectBlockPixel(x, y, i));
 		}
 		if (Math.random() >= 0.8) {
 			addSpecialAttribute();
 		}
-		
+
 	}
 
 	private void addSpecialAttribute() {
 		double random = Math.random();
-		if (random < 0.3) {
+		if (random < 0.2) {
 			specialAttribute = new LargerBar();
-		} else if (random < 0.7) {
+		} else if (random < 0.5) {
 			specialAttribute = new MultiBall();
+		} else if (random < 0.7) {
+			specialAttribute = new FireBall();
 		} else {
 			specialAttribute = new Weapon();
 		}
 		specialAttribute.setX(body.get(2).getX());
 		specialAttribute.setY(body.get(2).getY());
-		
+
 	}
 
-	private Pixel randomBlockPixel(int x, int y) {
+	private Pixel selectBlockPixel(int x, int y, int i) {
 		if (y < 10) {
-			return new GreenBlockPixel(x, y);
+			if (i == 0) {
+				return new GreenLeftBlockPixel(x + i, y);
+			} else if (i == 3) {
+				return new GreenRightBlockPixel(x + i, y);
+			} else {
+				return new GreenBlockPixel(x + i, y);
+			}
 		} else if (y <= 15) {
-			return new PurpleBlockPixel(x, y);
+			if (i == 0) {
+				return new PurpleLeftBlockPixel(x + i, y);
+			} else if (i == 3) {
+				return new PurpleRightBlockPixel(x + i, y);
+			} else {
+				return new PurpleBlockPixel(x + i, y);
+			}
 		} else {
-			return new OrangeBlockPixel(x, y);
+			if (i == 0) {
+				return new OrangeLeftBlockPixel(x + i, y);
+			} else if (i == 3) {
+				return new OrangeRightBlockPixel(x + i, y);
+			} else {
+				return new OrangeBlockPixel(x + i, y);
+			}
 		}
 	}
 
@@ -66,7 +88,14 @@ public class Block {
 			int x = body.get(0).getX();
 			int y = body.get(0).getY();
 			for (int i = 0; i < 4; i++) {
-				body.set(i, new PurpleBlockPixel(x + i, y));
+				if (i == 0) {
+					body.set(i, new PurpleLeftBlockPixel(x + i, y));
+				} else if (i == 3) {
+					body.set(i, new PurpleRightBlockPixel(x + i, y));
+				} else {
+					body.set(i, new PurpleBlockPixel(x + i, y));
+
+				}
 			}
 			return false;
 		}
@@ -74,7 +103,14 @@ public class Block {
 			int x = body.get(0).getX();
 			int y = body.get(0).getY();
 			for (int i = 0; i < 4; i++) {
-				body.set(i, new OrangeBlockPixel(x + i, y));
+				if (i == 0) {
+					body.set(i, new OrangeLeftBlockPixel(x + i, y));
+				} else if (i == 3) {
+					body.set(i, new OrangeRightBlockPixel(x + i, y));
+				} else {
+					body.set(i, new OrangeBlockPixel(x + i, y));
+
+				}
 			}
 			return false;
 		}
@@ -89,9 +125,4 @@ public class Block {
 		this.specialAttribute = specialAttribute;
 	}
 
-	
-	
-
-	
-	
 }

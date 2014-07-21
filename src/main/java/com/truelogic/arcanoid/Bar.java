@@ -44,7 +44,7 @@ public class Bar {
 			}
 			break;
 		case RIGHT:
-			if (!(this.body.get(BODY_LENGTH).getX() + 1 == Board.M_WIDTH)) {
+			if (!(this.body.get(body.size() - 1).getX() + 1 == Board.M_WIDTH)) {
 				BarPixel newBottom = new BarPixel(body.get(body.size() - 1)
 						.getX() + 1, body.get(body.size() - 1).getY());
 				List<BarPixel> newBody2 = new ArrayList<BarPixel>();
@@ -106,6 +106,8 @@ public class Bar {
 	}
 
 	public void applyLargerBar() {
+		body.add(new BarPixel(body.get(body.size() -1).getX() + 1, body.get(0).getY()));
+		body.add(new BarPixel(body.get(body.size() -1).getX() + 1, body.get(0).getY()));
 		body.add(new BarPixel(body.get(body.size() -1).getX() + 1, body.get(0).getY()));
 		
 	}
