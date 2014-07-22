@@ -7,6 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +69,7 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	private void paintBackground(Graphics g) {
-		g.drawImage(background.getImage(), 0, 0, this);
+		g.drawImage(background.getImage(), -20, -20, this);
 		
 	}
 
@@ -186,6 +189,8 @@ public class Board extends JPanel implements ActionListener {
 		timer.start();
 		setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
 		setFocusable(true);
+		addMouseMotionListener(new MouseArkanoidListener());
+		addMouseListener(new MouseArkanoidListe());
 		addKeyListener(new KeyPressListener(this));
 	}
 
@@ -238,6 +243,66 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 
+	}
+	
+	private class MouseArkanoidListe implements MouseListener {
+
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			Board board = Board.getInstance();
+			for (Ball ball : board.getBalls()) {
+				if (ball.standStill()) {
+					ball.activate();
+					break;
+				}
+			}
+			if (board.getBar().isWeapon()) {
+				board.shoot();
+			}
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+	}
+	
+	private class MouseArkanoidListener implements MouseMotionListener {
+
+		
+		@Override
+		public void mouseDragged(MouseEvent arg0) {
+			
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent arg0) {
+			Board.getInstance().getBar().move(arg0.getX());
+			
+		}
+		
 	}
 
 	public Bar getBar() {

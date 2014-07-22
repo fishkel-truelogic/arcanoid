@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.truelogic.arcanoid.ui.BarPixel;
 import com.truelogic.arcanoid.ui.Board;
+import com.truelogic.arcanoid.ui.Pixel;
 
 public class Bar {
 
@@ -12,7 +13,7 @@ public class Bar {
 	public static final int RIGHT = 1;
 	public static final int UP = 2;
 	public static final int DOWN = 3;
-	private static final int BODY_LENGTH = 6;
+	private static int BODY_LENGTH = 6;
 	private List<BarPixel> body;
 	private int direction;
 	private boolean weapon;
@@ -106,6 +107,7 @@ public class Bar {
 	}
 
 	public void applyLargerBar() {
+		BODY_LENGTH = BODY_LENGTH + 3;
 		body.add(new BarPixel(body.get(body.size() -1).getX() + 1, body.get(0).getY()));
 		body.add(new BarPixel(body.get(body.size() -1).getX() + 1, body.get(0).getY()));
 		body.add(new BarPixel(body.get(body.size() -1).getX() + 1, body.get(0).getY()));
@@ -118,6 +120,21 @@ public class Bar {
 
 	public void setWeapon(boolean weapon) {
 		this.weapon = weapon;
+	}
+
+	public void move(int x) {
+		if (body.get(0).getX() < x) {
+			direction = RIGHT;
+		} else {
+			direction = LEFT;
+		}
+		this.body = new ArrayList<BarPixel>();
+		for (int i = 0; i < BODY_LENGTH + 1; i++) {
+			body.add(new BarPixel(x / Pixel.SIZE, Board.M_HEIGHT - 2));
+			x += Pixel.SIZE;
+		}
+		direction = 0;
+		
 	}
 	
 	
