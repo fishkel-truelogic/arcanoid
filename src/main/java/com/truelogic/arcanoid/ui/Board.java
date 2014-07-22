@@ -51,14 +51,23 @@ public class Board extends JPanel implements ActionListener {
 	
 	private BulletPixel bullet2;
 
+	private Background background;
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		paintBackground(g);
 		paintBar(g);
 		paintBlocks(g);
 		paintBall(g);
 		paintSpecialAttrs(g);
 		paintBullets(g);
+		
+	}
+
+	private void paintBackground(Graphics g) {
+		g.drawImage(background.getImage(), 0, 0, this);
+		
 	}
 
 	private void paintBullets(Graphics g) {
@@ -166,6 +175,7 @@ public class Board extends JPanel implements ActionListener {
 
 	public Board() {
 		super();
+		background = new Background();
 		this.bar = new Bar();
 		this.balls = new ArrayList<Ball>();
 		this.balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
