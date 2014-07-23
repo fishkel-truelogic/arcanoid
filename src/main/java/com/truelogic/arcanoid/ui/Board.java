@@ -134,54 +134,11 @@ public class Board extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (blocks.isEmpty()) {
-			this.setUpBlocks();
-			balls = new ArrayList<Ball>();
-			balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
-			bar = new Bar();
-		}
-		List<Ball> diedBalls = new ArrayList<Ball>();
-		bar.move(balls);
-		for (Ball ball : balls) {
-			ball.move(crash(ball, bar), blocks, specialAttrs);
-			if (ball.died()) {
-				diedBalls.add(ball);
-			}
-		}
-		for (Ball ball : diedBalls) {
-			balls.remove(ball);
-			if (balls.isEmpty())
-				balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
-		}
-		List<DroppingItem> dpToRemove = new ArrayList<DroppingItem>();
-		for (DroppingItem dp : specialAttrs) {
-			dp.move();
-			if (dp.crash(bar) || dp.outOfScreen()) {
-				dpToRemove.add(dp);
-			}
-		}
-		for (DroppingItem dp : dpToRemove)
-			specialAttrs.remove(dp);
-
-		if (bullet != null) {
-			if (bullet.move(blocks, specialAttrs)) {
-				bullet = null;
-			}
-		}
-
-		if (bullet2 != null) {
-			if (bullet2.move(blocks, specialAttrs)) {
-				bullet2 = null;
-			}
-		}
+		checkNextLevel();
+		moveBalls();
+		moveDroppingItems();
+		moveBullets();
 		repaint();
-	}
-
-	private Integer crash(Ball ball, Bar bar) {
-		if (bar.crash(ball)) {
-			return bar.getVelocity();
-		}
-		return null;
 	}
 
 	public Board() {
@@ -203,6 +160,65 @@ public class Board extends JPanel implements ActionListener {
 		addMouseMotionListener(new MouseArkanoidListener());
 		addMouseListener(new MouseArkanoidListe());
 		addKeyListener(new KeyPressListener(this));
+	}
+
+	private void checkNextLevel() {
+		if (blocks.isEmpty()) {
+			this.setUpBlocks();
+			balls = new ArrayList<Ball>();
+			balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
+			bar = new Bar();
+		}
+	}
+
+	private void moveBullets() {
+		if (bullet != null) {
+			if (bullet.move(blocks, specialAttrs)) {
+				bullet = null;
+			}
+		}
+
+		if (bullet2 != null) {
+			if (bullet2.move(blocks, specialAttrs)) {
+				bullet2 = null;
+			}
+		}
+	}
+
+	private void moveDroppingItems() {
+		List<DroppingItem> dpToRemove = new ArrayList<DroppingItem>();
+		for (DroppingItem dp : specialAttrs) {
+			dp.move();
+			if (dp.crash(bar) || dp.outOfScreen()) {
+				dpToRemove.add(dp);
+			}
+		}
+		for (DroppingItem dp : dpToRemove)
+			specialAttrs.remove(dp);
+
+	}
+
+	private void moveBalls() {
+		List<Ball> diedBalls = new ArrayList<Ball>();
+		bar.move(balls);
+		for (Ball ball : balls) {
+			ball.move(crash(ball, bar), blocks, specialAttrs);
+			if (ball.died()) {
+				diedBalls.add(ball);
+			}
+		}
+		for (Ball ball : diedBalls) {
+			balls.remove(ball);
+			if (balls.isEmpty())
+				balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
+		}
+	}
+
+	private Integer crash(Ball ball, Bar bar) {
+		if (bar.crash(ball)) {
+			return bar.getVelocity();
+		}
+		return null;
 	}
 
 	private void setUpBlocks() {
