@@ -1,6 +1,5 @@
-package com.truelogic.arcanoid;
+package com.truelogic.arcanoid.ui.pixel.block;
 
-import com.truelogic.arcanoid.ui.GreenBlockPixel;
 
 /**
  * @author leo

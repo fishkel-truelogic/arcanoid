@@ -1,4 +1,4 @@
-package com.truelogic.arcanoid.ui;
+package com.truelogic.arcanoid.ui.pixel.block;
 
 /**
  * @author leo

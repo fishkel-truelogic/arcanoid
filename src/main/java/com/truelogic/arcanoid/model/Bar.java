@@ -1,11 +1,11 @@
-package com.truelogic.arcanoid;
+package com.truelogic.arcanoid.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.truelogic.arcanoid.ui.BarPixel;
 import com.truelogic.arcanoid.ui.Board;
-import com.truelogic.arcanoid.ui.Pixel;
+import com.truelogic.arcanoid.ui.pixel.BarPixel;
+import com.truelogic.arcanoid.ui.pixel.Pixel;
 
 public class Bar {
 
@@ -122,19 +122,14 @@ public class Bar {
 		this.weapon = weapon;
 	}
 
-	public void move(int x) {
-		if (body.get(0).getX() < x) {
-			direction = RIGHT;
-		} else {
-			direction = LEFT;
-		}
+	public boolean move(int x) {
+		boolean	result = body.get(0).getX() > x / Pixel.SIZE;
 		this.body = new ArrayList<BarPixel>();
 		for (int i = 0; i < BODY_LENGTH + 1; i++) {
 			body.add(new BarPixel(x / Pixel.SIZE, Board.M_HEIGHT - 2));
 			x += Pixel.SIZE;
 		}
-		direction = 0;
-		
+		return result;
 	}
 	
 	

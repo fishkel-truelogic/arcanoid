@@ -1,8 +1,11 @@
 package com.truelogic.arcanoid.ui;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -10,15 +13,20 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import com.truelogic.arcanoid.Ball;
-import com.truelogic.arcanoid.Bar;
-import com.truelogic.arcanoid.Block;
+import com.truelogic.arcanoid.model.Ball;
+import com.truelogic.arcanoid.model.Bar;
+import com.truelogic.arcanoid.model.Block;
+import com.truelogic.arcanoid.model.DroppingItem;
+import com.truelogic.arcanoid.ui.pixel.Background;
+import com.truelogic.arcanoid.ui.pixel.BulletPixel;
+import com.truelogic.arcanoid.ui.pixel.Pixel;
 
 public class Board extends JPanel implements ActionListener {
 
@@ -48,10 +56,10 @@ public class Board extends JPanel implements ActionListener {
 
 	private List<Block> blocks;
 
-	private List<DroppingPixel> specialAttrs;
-	
+	private List<DroppingItem> specialAttrs;
+
 	private BulletPixel bullet;
-	
+
 	private BulletPixel bullet2;
 
 	private Background background;
@@ -65,12 +73,12 @@ public class Board extends JPanel implements ActionListener {
 		paintBall(g);
 		paintSpecialAttrs(g);
 		paintBullets(g);
-		
+
 	}
 
 	private void paintBackground(Graphics g) {
 		g.drawImage(background.getImage(), -20, -20, this);
-		
+
 	}
 
 	private void paintBullets(Graphics g) {
@@ -78,18 +86,18 @@ public class Board extends JPanel implements ActionListener {
 			int x = MARGIN_LEFT + bullet.getX() * Pixel.SIZE;
 			int y = MARGIN_TOP + bullet.getY() * Pixel.SIZE;
 			g.drawImage(bullet.getImage(), x, y, this);
-			
+
 		}
 		if (bullet2 != null) {
 			int x = MARGIN_LEFT + bullet2.getX() * Pixel.SIZE;
 			int y = MARGIN_TOP + bullet2.getY() * Pixel.SIZE;
 			g.drawImage(bullet2.getImage(), x, y, this);
 		}
-		
+
 	}
 
 	private void paintSpecialAttrs(Graphics g) {
-		for (DroppingPixel sa : specialAttrs) {
+		for (DroppingItem sa : specialAttrs) {
 			int x = MARGIN_LEFT + sa.getX() * Pixel.SIZE;
 			int y = MARGIN_TOP + sa.getY() * Pixel.SIZE;
 			g.drawImage(sa.getImage(), x, y, this);
@@ -145,22 +153,22 @@ public class Board extends JPanel implements ActionListener {
 			if (balls.isEmpty())
 				balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
 		}
-		List<DroppingPixel> dpToRemove = new ArrayList<DroppingPixel>();
-		for (DroppingPixel dp : specialAttrs) {
+		List<DroppingItem> dpToRemove = new ArrayList<DroppingItem>();
+		for (DroppingItem dp : specialAttrs) {
 			dp.move();
 			if (dp.crash(bar) || dp.outOfScreen()) {
 				dpToRemove.add(dp);
 			}
 		}
-		for (DroppingPixel dp : dpToRemove)
+		for (DroppingItem dp : dpToRemove)
 			specialAttrs.remove(dp);
-		
+
 		if (bullet != null) {
 			if (bullet.move(blocks, specialAttrs)) {
 				bullet = null;
 			}
 		}
-		
+
 		if (bullet2 != null) {
 			if (bullet2.move(blocks, specialAttrs)) {
 				bullet2 = null;
@@ -182,13 +190,16 @@ public class Board extends JPanel implements ActionListener {
 		this.bar = new Bar();
 		this.balls = new ArrayList<Ball>();
 		this.balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
-		this.specialAttrs = new ArrayList<DroppingPixel>();
+		this.specialAttrs = new ArrayList<DroppingItem>();
 		setUpBlocks();
 		setBackground(Color.BLACK);
 		timer = new Timer(DELAY, this);
 		timer.start();
 		setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
 		setFocusable(true);
+		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
+		setCursor(blankCursor);
 		addMouseMotionListener(new MouseArkanoidListener());
 		addMouseListener(new MouseArkanoidListe());
 		addKeyListener(new KeyPressListener(this));
@@ -244,9 +255,8 @@ public class Board extends JPanel implements ActionListener {
 		}
 
 	}
-	
-	private class MouseArkanoidListe implements MouseListener {
 
+	private class MouseArkanoidListe implements MouseListener {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -260,49 +270,57 @@ public class Board extends JPanel implements ActionListener {
 			if (board.getBar().isWeapon()) {
 				board.shoot();
 			}
-			
+
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 	}
-	
+
 	private class MouseArkanoidListener implements MouseMotionListener {
 
-		
 		@Override
 		public void mouseDragged(MouseEvent arg0) {
-			
+
 		}
 
 		@Override
 		public void mouseMoved(MouseEvent arg0) {
-			Board.getInstance().getBar().move(arg0.getX());
-			
+			Board board = Board.getInstance();
+			Bar bar = board.getBar();
+			List<Ball> balls = board.getBalls();
+			boolean left = bar.move(arg0.getX());
+			for (Ball ball : balls) {
+				if (bar.crash(ball)) {
+					if (left) {
+						ball.move(-1, board.getBlocks(), board.getSpecialAttrs());
+					} else {
+						ball.move(1, board.getBlocks(), board.getSpecialAttrs());
+					}
+
+				}
+			}
+
 		}
-		
+
 	}
 
 	public Bar getBar() {
@@ -318,8 +336,7 @@ public class Board extends JPanel implements ActionListener {
 			bullet2.setX(bar.getBody().get(bar.getBody().size() - 1).getX());
 			bullet2.setY(bar.getBody().get(bar.getBody().size() - 1).getY());
 		}
-		
-		
+
 	}
 
 	public void setBar(Bar bar) {
@@ -342,10 +359,10 @@ public class Board extends JPanel implements ActionListener {
 				firstBall = ball;
 			}
 		}
-		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), 1, firstBall.isFireBall()));
-		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), -1, firstBall.isFireBall()));
-		getInstance().getBalls().add(new Ball(firstBall.getX() , firstBall.getY(), 0, firstBall.isFireBall()));
-		
+		getInstance().getBalls().add(new Ball(firstBall.getX(), firstBall.getY(), 1, firstBall.isFireBall()));
+		getInstance().getBalls().add(new Ball(firstBall.getX(), firstBall.getY(), -1, firstBall.isFireBall()));
+		getInstance().getBalls().add(new Ball(firstBall.getX(), firstBall.getY(), 0, firstBall.isFireBall()));
+
 	}
 
 	public static Board getInstance() {
@@ -363,6 +380,22 @@ public class Board extends JPanel implements ActionListener {
 				ball.setImage(null);
 			}
 		}
+	}
+
+	public List<Block> getBlocks() {
+		return blocks;
+	}
+
+	public void setBlocks(List<Block> blocks) {
+		this.blocks = blocks;
+	}
+
+	public List<DroppingItem> getSpecialAttrs() {
+		return specialAttrs;
+	}
+
+	public void setSpecialAttrs(List<DroppingItem> specialAttrs) {
+		this.specialAttrs = specialAttrs;
 	}
 
 }

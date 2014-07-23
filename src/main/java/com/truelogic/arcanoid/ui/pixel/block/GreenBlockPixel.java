@@ -1,4 +1,6 @@
-package com.truelogic.arcanoid.ui;
+package com.truelogic.arcanoid.ui.pixel.block;
+
+import com.truelogic.arcanoid.ui.pixel.Pixel;
 
 public class GreenBlockPixel extends Pixel {
 

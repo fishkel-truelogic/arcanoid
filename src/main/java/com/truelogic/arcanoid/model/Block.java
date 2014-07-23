@@ -1,24 +1,28 @@
-package com.truelogic.arcanoid;
+package com.truelogic.arcanoid.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.truelogic.arcanoid.attributes.FireBall;
-import com.truelogic.arcanoid.attributes.LargerBar;
-import com.truelogic.arcanoid.attributes.MultiBall;
-import com.truelogic.arcanoid.attributes.Weapon;
-import com.truelogic.arcanoid.ui.DroppingPixel;
-import com.truelogic.arcanoid.ui.GreenBlockPixel;
-import com.truelogic.arcanoid.ui.GreenLeftBlockPixel;
-import com.truelogic.arcanoid.ui.OrangeBlockPixel;
-import com.truelogic.arcanoid.ui.Pixel;
-import com.truelogic.arcanoid.ui.PurpleBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.Pixel;
+import com.truelogic.arcanoid.ui.pixel.attributes.FireBall;
+import com.truelogic.arcanoid.ui.pixel.attributes.LargerBar;
+import com.truelogic.arcanoid.ui.pixel.attributes.MultiBall;
+import com.truelogic.arcanoid.ui.pixel.attributes.Weapon;
+import com.truelogic.arcanoid.ui.pixel.block.GreenBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.block.GreenLeftBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.block.GreenRightBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.block.OrangeBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.block.OrangeLeftBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.block.OrangeRightBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.block.PurpleBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.block.PurpleLeftBlockPixel;
+import com.truelogic.arcanoid.ui.pixel.block.PurpleRightBlockPixel;
 
 public class Block {
 
 	private List<Pixel> body;
 
-	private DroppingPixel specialAttribute;
+	private DroppingItem specialAttribute;
 
 	public Block(int x, int y) {
 		this.body = new ArrayList<Pixel>();
@@ -117,11 +121,11 @@ public class Block {
 		return true;
 	}
 
-	public DroppingPixel getSpecialAttribute() {
+	public DroppingItem getSpecialAttribute() {
 		return specialAttribute;
 	}
 
-	public void setSpecialAttribute(DroppingPixel specialAttribute) {
+	public void setSpecialAttribute(DroppingItem specialAttribute) {
 		this.specialAttribute = specialAttribute;
 	}
 

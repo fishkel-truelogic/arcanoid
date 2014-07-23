@@ -1,12 +1,14 @@
-package com.truelogic.arcanoid.ui;
+package com.truelogic.arcanoid.model;
 
-import com.truelogic.arcanoid.Bar;
-import com.truelogic.arcanoid.attributes.FireBall;
-import com.truelogic.arcanoid.attributes.LargerBar;
-import com.truelogic.arcanoid.attributes.MultiBall;
-import com.truelogic.arcanoid.attributes.Weapon;
+import com.truelogic.arcanoid.ui.Board;
+import com.truelogic.arcanoid.ui.pixel.BarPixel;
+import com.truelogic.arcanoid.ui.pixel.Pixel;
+import com.truelogic.arcanoid.ui.pixel.attributes.FireBall;
+import com.truelogic.arcanoid.ui.pixel.attributes.LargerBar;
+import com.truelogic.arcanoid.ui.pixel.attributes.MultiBall;
+import com.truelogic.arcanoid.ui.pixel.attributes.Weapon;
 
-public class DroppingPixel extends Pixel {
+public class DroppingItem extends Pixel {
 
 	public void move() {
 		y += 1;
@@ -17,7 +19,7 @@ public class DroppingPixel extends Pixel {
 	}
 
 	public boolean crash(Bar bar) {
-		DroppingPixel dp = new DroppingPixel();
+		DroppingItem dp = new DroppingItem();
 		dp.setX(x);
 		dp.setY(y + 1);
 		for (BarPixel bp : bar.getBody()) {

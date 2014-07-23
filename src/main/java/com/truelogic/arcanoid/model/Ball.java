@@ -1,4 +1,4 @@
-package com.truelogic.arcanoid;
+package com.truelogic.arcanoid.model;
 
 import java.awt.Image;
 import java.net.URL;
@@ -7,8 +7,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 
 import com.truelogic.arcanoid.ui.Board;
-import com.truelogic.arcanoid.ui.DroppingPixel;
-import com.truelogic.arcanoid.ui.Pixel;
+import com.truelogic.arcanoid.ui.pixel.Pixel;
 
 public class Ball extends Pixel {
 
@@ -29,7 +28,7 @@ public class Ball extends Pixel {
 		this.fireBall = fireball;
 	}
 
-	public void move(Integer vbar, List<Block> blocks, List<DroppingPixel> specialAttrs) {
+	public void move(Integer vbar, List<Block> blocks, List<DroppingItem> specialAttrs) {
 		if (vbar != null) {
 			vy = -vy;
 			vx += vbar;

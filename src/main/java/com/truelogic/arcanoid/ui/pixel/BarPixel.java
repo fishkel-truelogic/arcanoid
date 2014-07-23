@@ -1,4 +1,5 @@
-package com.truelogic.arcanoid.ui;
+package com.truelogic.arcanoid.ui.pixel;
+
 
 public class BarPixel extends Pixel {
 
