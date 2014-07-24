@@ -3,6 +3,8 @@ package com.truelogic.arcanoid.ui;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -64,16 +66,49 @@ public class Board extends JPanel implements ActionListener {
 
 	private Background background;
 
+	private int lives;
+	
+	private int points;
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		paintBackground(g);
-		paintBar(g);
-		paintBlocks(g);
-		paintBall(g);
-		paintSpecialAttrs(g);
-		paintBullets(g);
+		paintPoints(g);
+		if (paintLives(g)) {
+			paintBar(g);
+			paintBlocks(g);
+			paintBall(g);
+			paintSpecialAttrs(g);
+			paintBullets(g);
+		}
 
+	}
+
+	private void paintPoints(Graphics g) {
+		String msg = "Points: " + points;
+		Font small = new Font("Helvetica", Font.BOLD, 22);
+		g.setColor(Color.white);
+		g.setFont(small);
+		g.drawString(msg, 5 * Pixel.SIZE, 2 * Pixel.SIZE);
+	}
+
+	private boolean paintLives(Graphics g) {
+		String msg = "Lives: " + lives;
+		Font small = new Font("Helvetica", Font.BOLD, 22);
+		FontMetrics metr = getFontMetrics(small);
+		g.setColor(Color.white);
+		g.setFont(small);
+		if (lives >= 0) {
+			g.drawString(msg, M_WIDTH / 2 * Pixel.SIZE, 2 * Pixel.SIZE);
+			return true;
+		} else {
+			msg = "Game Over";
+			g.drawString(msg,
+					(M_WIDTH / 2) * Pixel.SIZE - metr.stringWidth(msg),
+					M_HEIGHT / 2 * Pixel.SIZE);
+			return false;
+		}
 	}
 
 	private void paintBackground(Graphics g) {
@@ -136,13 +171,22 @@ public class Board extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		checkNextLevel();
 		moveBalls();
+		checkLives();
 		moveDroppingItems();
 		moveBullets();
 		repaint();
 	}
 
+	private void checkLives() {
+		if (lives < 0) {
+			timer.stop();
+		}
+
+	}
+
 	public Board() {
 		super();
+		lives = 5;
 		background = new Background();
 		this.bar = new Bar();
 		this.balls = new ArrayList<Ball>();
@@ -154,8 +198,10 @@ public class Board extends JPanel implements ActionListener {
 		timer.start();
 		setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
 		setFocusable(true);
-		BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
+		BufferedImage cursorImg = new BufferedImage(16, 16,
+				BufferedImage.TYPE_INT_ARGB);
+		Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+				cursorImg, new Point(0, 0), "blank cursor");
 		setCursor(blankCursor);
 		addMouseMotionListener(new MouseArkanoidListener());
 		addMouseListener(new MouseArkanoidListe());
@@ -209,8 +255,10 @@ public class Board extends JPanel implements ActionListener {
 		}
 		for (Ball ball : diedBalls) {
 			balls.remove(ball);
-			if (balls.isEmpty())
+			if (balls.isEmpty()) {
+				lives--;
 				balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
+			}
 		}
 	}
 
@@ -324,17 +372,29 @@ public class Board extends JPanel implements ActionListener {
 			Bar bar = board.getBar();
 			List<Ball> balls = board.getBalls();
 			boolean left = bar.move(arg0.getX());
+			List<Ball> diedBalls = new ArrayList<Ball>();
 			for (Ball ball : balls) {
 				if (bar.crash(ball)) {
 					if (left) {
-						ball.move(-1, board.getBlocks(), board.getSpecialAttrs());
+						ball.move(-1, board.getBlocks(),
+								board.getSpecialAttrs());
 					} else {
 						ball.move(1, board.getBlocks(), board.getSpecialAttrs());
 					}
 
 				}
+				if (ball.died()) {
+					diedBalls.add(ball);
+				}
 			}
-
+			for (Ball ball : diedBalls) {
+				balls.remove(ball);
+				if (balls.isEmpty()) {
+					lives--;
+					balls.add(new Ball(M_WIDTH / 2, M_HEIGHT - 4));
+					
+				}
+			}
 		}
 
 	}
@@ -375,9 +435,15 @@ public class Board extends JPanel implements ActionListener {
 				firstBall = ball;
 			}
 		}
-		getInstance().getBalls().add(new Ball(firstBall.getX(), firstBall.getY(), 1, firstBall.isFireBall()));
-		getInstance().getBalls().add(new Ball(firstBall.getX(), firstBall.getY(), -1, firstBall.isFireBall()));
-		getInstance().getBalls().add(new Ball(firstBall.getX(), firstBall.getY(), 0, firstBall.isFireBall()));
+		getInstance().getBalls().add(
+				new Ball(firstBall.getX(), firstBall.getY(), 1, firstBall
+						.isFireBall()));
+		getInstance().getBalls().add(
+				new Ball(firstBall.getX(), firstBall.getY(), -1, firstBall
+						.isFireBall()));
+		getInstance().getBalls().add(
+				new Ball(firstBall.getX(), firstBall.getY(), 0, firstBall
+						.isFireBall()));
 
 	}
 
@@ -413,5 +479,15 @@ public class Board extends JPanel implements ActionListener {
 	public void setSpecialAttrs(List<DroppingItem> specialAttrs) {
 		this.specialAttrs = specialAttrs;
 	}
+
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+	
+	
 
 }

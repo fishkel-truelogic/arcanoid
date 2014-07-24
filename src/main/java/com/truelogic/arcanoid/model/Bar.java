@@ -19,6 +19,7 @@ public class Bar {
 	private boolean weapon;
 	
 	public Bar() {
+		BODY_LENGTH = 6;
 		int y = Board.M_HEIGHT - 2;
 		int x = Board.M_WIDTH / 2 - BODY_LENGTH / 2; 
 		this.body = new ArrayList<BarPixel>();

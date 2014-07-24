@@ -3,6 +3,7 @@ package com.truelogic.arcanoid.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.truelogic.arcanoid.ui.Board;
 import com.truelogic.arcanoid.ui.pixel.Pixel;
 import com.truelogic.arcanoid.ui.pixel.attributes.FireBall;
 import com.truelogic.arcanoid.ui.pixel.attributes.LargerBar;
@@ -101,6 +102,7 @@ public class Block {
 
 				}
 			}
+			Board.getInstance().setPoints(Board.getInstance().getPoints() + 300);
 			return false;
 		}
 		if (body.get(0) instanceof PurpleBlockPixel) {
@@ -116,8 +118,10 @@ public class Block {
 
 				}
 			}
+			Board.getInstance().setPoints(Board.getInstance().getPoints() + 200);
 			return false;
 		}
+		Board.getInstance().setPoints(Board.getInstance().getPoints() + 100);
 		return true;
 	}
 

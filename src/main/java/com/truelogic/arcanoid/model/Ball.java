@@ -48,6 +48,7 @@ public class Ball extends Pixel {
 					}
 				} else {
 					blocks.remove(block);
+					Board.getInstance().setPoints(Board.getInstance().getPoints() + 500);
 				}
 				if (block.getSpecialAttribute() != null) {
 					specialAttrs.add(block.getSpecialAttribute());
